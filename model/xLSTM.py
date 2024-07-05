@@ -26,7 +26,7 @@ class Model(nn.Module):
             ),
             slstm_block=sLSTMBlockConfig(
                 slstm=sLSTMLayerConfig(
-                    backend="vanilla",
+                    backend="cuda",
                     num_heads=4,
                     conv1d_kernel_size=4,
                     bias_init="powerlaw_blockdependent",
