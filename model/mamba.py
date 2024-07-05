@@ -13,11 +13,10 @@ class Model(nn.Module):
         self.num_layers = configs.num_layers
         self.pred_len = configs.pred_len
         self.input_size = configs.enc_in + configs.mark_enc_in  # Add the size of the time features
-        self.d_model = configs.d_model  # The model dimension we want to use (e.g., 256)
+        self.d_model = configs.d_model
         self.output_size = configs.c_out
 
-        # Adjust the input embedding layer
-        self.input_transform = nn.Linear(self.input_size, self.d_model)
+        self.input_transform = nn.Linear(self.input_size, self.d_model)  # Adjust the embedding layer
 
         self.mamba = Mamba(
             d_model=self.d_model,
@@ -33,8 +32,9 @@ class Model(nn.Module):
 
         x = self.input_transform(x_combined)
         x = self.mamba(x)
+        
         out = self.fc(x[:, -self.pred_len:, :])
-
+        
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
