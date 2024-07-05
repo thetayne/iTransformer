@@ -24,16 +24,16 @@ class Model(nn.Module):
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
-        print(f"x_combined shape: {x_combined.shape}")  # Debugging statement
+        #print(f"x_combined shape: {x_combined.shape}")  # Debugging statement
 
         x = self.input_transform(x_combined)
-        print(f"Transformed input shape: {x.shape}")  # Debugging statement
+        #print(f"Transformed input shape: {x.shape}")  # Debugging statement
 
         x = self.mamba(x)
-        print(f"Mamba output shape: {x.shape}")  # Debugging statement
+        #print(f"Mamba output shape: {x.shape}")  # Debugging statement
 
         out = self.fc(x[:, -self.pred_len:, :])
-        print(f"Final output shape: {out.shape}")  # Debugging statement
+        #print(f"Final output shape: {out.shape}")  # Debugging statement
 
         return out
 

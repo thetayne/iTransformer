@@ -67,6 +67,10 @@ python -u run.py \
   --expand 2 \
   --batch_size 16 \
   --learning_rate 0.0005 \
+  --embedding_dim 256 \
+  --enc_in 321 \
+  --dec_in 321 \
+  --c_out 321 \
   --itr 1
 
 
