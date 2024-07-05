@@ -13,10 +13,11 @@ class Model(nn.Module):
         self.num_layers = configs.num_layers
         self.pred_len = configs.pred_len
         self.input_size = configs.enc_in + configs.mark_enc_in  # Add the size of the time features
-        self.d_model = configs.embedding_dim  # Ensure d_model matches the embedding dimension
+        self.d_model = configs.d_model  # The model dimension we want to use (e.g., 256)
         self.output_size = configs.c_out
 
-        self.embedding = nn.Linear(self.input_size, self.d_model)  # Adjust the embedding layer
+        # Adjust the input embedding layer
+        self.input_transform = nn.Linear(self.input_size, self.d_model)
 
         self.mamba = Mamba(
             d_model=self.d_model,
@@ -29,15 +30,11 @@ class Model(nn.Module):
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         # Concatenate x_enc and x_mark_enc along the last dimension
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
-        
-        # Debugging statements
 
-        x = self.embedding(x_combined)
-        
+        x = self.input_transform(x_combined)
         x = self.mamba(x)
-        
         out = self.fc(x[:, -self.pred_len:, :])
-        
+
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):

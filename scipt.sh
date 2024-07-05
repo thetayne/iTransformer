@@ -60,8 +60,7 @@ python -u run.py \
   --pred_len 96 \
   --hidden_size 512 \
   --num_layers 2 \
-  --d_model 325 \
-  --context_length 96 \
+  --d_model 256 \
   --mark_enc_in 4 \
   --d_state 16 \
   --d_conv 4 \
@@ -69,6 +68,7 @@ python -u run.py \
   --batch_size 16 \
   --learning_rate 0.0005 \
   --itr 1
+
 
 
 
