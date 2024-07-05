@@ -5,11 +5,9 @@ from mamba_ssm import Mamba
 class Model(nn.Module):
     def __init__(self, configs):
         super(Model, self).__init__()
-        self.seq_len = configs.seq_len
+        self.hidden_size = configs.hidden_size
+        self.num_layers = configs.num_layers
         self.pred_len = configs.pred_len
-        self.output_attention = configs.output_attention
-        self.use_norm = configs.use_norm
-
         self.input_size = configs.enc_in + configs.mark_enc_in
         self.d_model = configs.d_model
         self.output_size = configs.c_out
@@ -26,10 +24,12 @@ class Model(nn.Module):
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
+
         x = self.input_transform(x_combined)
         x = self.mamba(x)
         
         out = self.fc(x[:, -self.pred_len:, :])
+
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
