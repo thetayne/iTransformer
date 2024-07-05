@@ -90,6 +90,17 @@ if __name__ == '__main__':
     # LSTM
     parser.add_argument('--hidden_size', type=int, default=512, help='hidden size of LSTM')
     parser.add_argument('--num_layers', type=int, default=2, help='number of LSTM layers')
+    parser.add_argument('--mark_enc_in', type=int, default=4, help='size of the time features')
+
+    # xLSTM
+    parser.add_argument('--embedding_dim', type=int, default=256, help='embedding dimension for xLSTM')
+    parser.add_argument('--context_length', type=int, default=96, help='context length for xLSTM')
+
+    #Mamba
+    parser.add_argument('--d_state', type=int, default=16, help='state size for Mamba model')
+    parser.add_argument('--d_conv', type=int, default=4, help='convolution size for Mamba model')
+    parser.add_argument('--expand', type=int, default=2, help='expansion factor for Mamba model')
+
 
 
     args = parser.parse_args()
