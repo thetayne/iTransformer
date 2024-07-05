@@ -52,7 +52,7 @@ class Model(nn.Module):
         #print(f"x_combined shape: {x_combined.shape}")
         
         x = self.embedding(x_combined)
-        print(f"Embedding output shape: {x.shape}")
+        #print(f"Embedding output shape: {x.shape}")
         
         x = self.xlstm_stack(x)
         #print(f"xLSTM stack output shape: {x.shape}")
