@@ -13,7 +13,7 @@ class Model(nn.Module):
         self.num_layers = configs.num_layers
         self.pred_len = configs.pred_len
         self.input_size = configs.enc_in + configs.mark_enc_in  # Add the size of the time features
-        self.d_model = configs.d_model
+        self.d_model = configs.embedding_dim
         self.output_size = configs.c_out
 
         self.embedding = nn.Linear(self.input_size, self.d_model)  # Adjust the embedding layer
