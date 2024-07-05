@@ -21,7 +21,7 @@ class Exp_Basic(object):
             'LSTM': LSTM,
             'xLSTM': xLSTM,
             'Mamba': mamba,
-            'S-Mamba': S_Mamba
+            'S_Mamba': S_Mamba
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
