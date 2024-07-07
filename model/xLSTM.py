@@ -31,7 +31,7 @@ class Model(nn.Module):
                 feedforward=FeedForwardConfig(proj_factor=1.3, act_fn="gelu"),
             ),
             context_length=configs.context_length,
-            num_blocks=7,
+            num_blocks=3,
             embedding_dim=self.embedding_dim,
             slstm_at=[1],  # Place sLSTM block at position 1
         )
