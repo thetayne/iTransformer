@@ -11,6 +11,7 @@ class Model(nn.Module):
         self.input_size = configs.enc_in + configs.mark_enc_in
         self.d_model = configs.d_model
         self.output_size = configs.c_out
+        self.dropout = nn.Dropout(configs.dropout)  # Dropout layer
 
         self.input_transform = nn.Linear(self.input_size, self.d_model)
 
@@ -24,19 +25,12 @@ class Model(nn.Module):
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
-        #print(f"x_combined shape: {x_combined.shape}")  # Debugging statement
-
         x = self.input_transform(x_combined)
-        #print(f"Transformed input shape: {x.shape}")  # Debugging statement
-
         x = self.mamba(x)
-        #print(f"Mamba output shape: {x.shape}")  # Debugging statement
-
+        x = self.dropout(x) 
         out = self.fc(x[:, -self.pred_len:, :])
-        #print(f"Final output shape: {out.shape}")  # Debugging statement
-
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
-        return out[:, -self.pred_len:, :]
+        return out

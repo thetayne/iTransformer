@@ -1,11 +1,10 @@
-model_name=LSTM
 
 python -u run.py \
   --is_training 1 \
   --root_path ./dataset/electricity/ \
   --data_path electricity.csv \
   --model_id ECL_96_96 \
-  --model $model_name \
+  --model LSTM \
   --data custom \
   --features M \
   --seq_len 96 \
@@ -20,17 +19,18 @@ python -u run.py \
   --enc_in 321 \
   --dec_in 321 \
   --c_out 321 \
-  --mark_enc_in 4 
+  --mark_enc_in 4 \
+  --dropout 0.1
 
 
-model_name=xLSTM
+
 
 python -u run.py \
   --is_training 1 \
   --root_path ./dataset/electricity/ \
   --data_path electricity.csv \
   --model_id ECL_96_96 \
-  --model $model_name \
+  --model xLSTM \
   --data custom \
   --features M \
   --seq_len 96 \
@@ -44,16 +44,17 @@ python -u run.py \
   --enc_in 321 \
   --dec_in 321 \
   --c_out 321 \
-  --context_length 96 
+  --context_length 96 \
+  --dropout 0.1
 
-model_name=Mamba
+
 
 python -u run.py \
   --is_training 1 \
   --root_path ./dataset/electricity/ \
   --data_path electricity.csv \
   --model_id ECL_96_96 \
-  --model $model_name \
+  --model Mamba \
   --data custom \
   --features M \
   --seq_len 96 \
@@ -71,19 +72,20 @@ python -u run.py \
   --enc_in 321 \
   --dec_in 321 \
   --c_out 321 \
-  --itr 1
+  --itr 1 \
+  --dropout 0.1
 
 
 
 
 
-model_name=S_Mamba
+
 python -u run.py \
   --is_training 1 \
   --root_path ./dataset/electricity/ \
   --data_path electricity.csv \
   --model_id ECL_96_96 \
-  --model $model_name \
+  --model S_Mamba \
   --data custom \
   --features M \
   --seq_len 96 \
