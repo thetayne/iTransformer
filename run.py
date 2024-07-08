@@ -95,6 +95,8 @@ if __name__ == '__main__':
     # xLSTM
     parser.add_argument('--embedding_dim', type=int, default=256, help='embedding dimension for xLSTM')
     parser.add_argument('--context_length', type=int, default=96, help='context length for xLSTM')
+    parser.add_argument('--weight_decay', type=float, default=0, help='weight decay (L2 regularization)')
+
 
     #Mamba
     parser.add_argument('--d_state', type=int, default=16, help='state size for Mamba model')
