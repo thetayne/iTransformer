@@ -18,7 +18,7 @@ class Model(nn.Module):
         cfg = xLSTMBlockStackConfig(
             mlstm_block=mLSTMBlockConfig(
                 mlstm=mLSTMLayerConfig(
-                    conv1d_kernel_size=4, qkv_proj_blocksize=4, num_heads=4
+                    conv1d_kernel_size=8, qkv_proj_blocksize=8, num_heads=8
                 )
             ),
             slstm_block=sLSTMBlockConfig(
