@@ -33,7 +33,7 @@ class Model(nn.Module):
             context_length=configs.context_length,
             num_blocks=3,
             embedding_dim=self.embedding_dim,
-            slstm_at=[1],  # Place sLSTM block at position 1
+            #slstm_at=[1],  # Place sLSTM block at position 1
         )
 
         self.xlstm_stack = xLSTMBlockStack(cfg)
