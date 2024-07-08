@@ -18,7 +18,7 @@ class Model(nn.Module):
         cfg = xLSTMBlockStackConfig(
             mlstm_block=mLSTMBlockConfig(
                 mlstm=mLSTMLayerConfig(
-                    conv1d_kernel_size=8, qkv_proj_blocksize=8, num_heads=8
+                    conv1d_kernel_size=4, qkv_proj_blocksize=4, num_heads=4
                 )
             ),
             slstm_block=sLSTMBlockConfig(
@@ -31,9 +31,9 @@ class Model(nn.Module):
                 feedforward=FeedForwardConfig(proj_factor=1.3, act_fn="gelu"),
             ),
             context_length=configs.context_length,
-            num_blocks=3,
+            num_blocks=2,
             embedding_dim=self.embedding_dim,
-            #slstm_at=[1],  # Place sLSTM block at position 1
+            slstm_at=[1],  # Place sLSTM block at position 1
         )
 
         self.xlstm_stack = xLSTMBlockStack(cfg)
