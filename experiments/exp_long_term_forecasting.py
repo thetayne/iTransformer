@@ -12,7 +12,6 @@ import numpy as np
 
 warnings.filterwarnings('ignore')
 
-
 class Exp_Long_Term_Forecast(Exp_Basic):
     def __init__(self, args):
         super(Exp_Long_Term_Forecast, self).__init__(args)
@@ -156,10 +155,13 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 if self.args.use_amp:
                     scaler.scale(loss).backward()
+                    scaler.unscale_(model_optim)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.grad_clip_norm)  # Apply gradient clipping
                     scaler.step(model_optim)
                     scaler.update()
                 else:
                     loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.grad_clip_norm)  # Apply gradient clipping
                     model_optim.step()
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
@@ -321,7 +323,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         # result save
         folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
+        if not os.path.exists(folder_path, exist_ok=True):
             os.makedirs(folder_path)
 
         np.save(folder_path + 'real_prediction.npy', preds)

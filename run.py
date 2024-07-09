@@ -101,6 +101,8 @@ if __name__ == '__main__':
     parser.add_argument('--proj_factor', type=float, default=1.3, help='proj_factor for sLSTM')
     parser.add_argument('--num_blocks', type=int, default=2, help='num_blocks for xLSTM')
     parser.add_argument('--slstm_at', type=int, default=1, help='where lstm block is placed in xLSTM')
+    parser.add_argument('--grad_clip_norm', type=float, default=1.0, help='gradient clipping norm')
+
 
 
 
