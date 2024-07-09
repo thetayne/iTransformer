@@ -96,11 +96,10 @@ if __name__ == '__main__':
     parser.add_argument('--embedding_dim', type=int, default=256, help='embedding dimension for xLSTM')
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay (L2 regularization)')
     parser.add_argument('--kernal_size', type=int, default=4, help='conv1d_kernel_size for xLSTM')
-    parser.add_argument('--num_heads', type=int, default=4, help='num_heads for xLSTM')
+    parser.add_argument('--num_heads_xlstm', type=int, default=4, help='num_heads for xLSTM')
     parser.add_argument('--qkv_proj_blocksize', type=int, default=4, help='qkv_proj_blocksize for xLSTM')
     parser.add_argument('--proj_factor', type=float, default=1.3, help='proj_factor for sLSTM')
     parser.add_argument('--num_blocks', type=int, default=2, help='num_blocks for xLSTM')
-    parser.add_argument('--num_heads', type=int, default=4, help='num_heads for xLSTM')
     parser.add_argument('--slstm_at', type=int, default=1, help='where lstm block is placed in xLSTM')
 
 

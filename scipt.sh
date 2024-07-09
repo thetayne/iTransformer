@@ -48,6 +48,30 @@ python -u run.py \
   --dropout 0.1
 
 
+!python -u run.py \
+  --is_training 1 \
+  --root_path ./dataset/electricity/ \
+  --data_path electricity.csv \
+  --model_id ECL_96_96 \
+  --model xLSTM \
+  --data custom \
+  --features M \
+  --seq_len 96 \
+  --pred_len 96 \
+  --embedding_dim 512 \
+  --batch_size 16 \
+  --learning_rate 0.0005 \
+  --itr 1 \
+  --enc_in 321 \
+  --c_out 321 \
+  --kernal_size 8 \
+  --num_heads 8 \
+  --qkv_proj_blocksize 4 \
+  --dropout 0.1 \
+  --num_blocks 2 \
+  --weight_decay 1e-5
+
+
 
 python -u run.py \
   --is_training 1 \

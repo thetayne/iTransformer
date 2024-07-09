@@ -11,7 +11,7 @@ class Model(nn.Module):
         self.embedding_dim = configs.embedding_dim
         self.output_size = configs.c_out
         self.kernal_size = configs.kernal_size
-        self.num_heads = configs.num_heads
+        self.num_heads = configs.num_heads_xlstm
         self.qkv_proj_blocksize = configs.qkv_proj_blocksize
         self.proj_factor = configs.proj_factor
         self.num_blocks = configs.num_blocks
