@@ -5,9 +5,8 @@ from xlstm import xLSTMBlockStack, xLSTMBlockStackConfig, mLSTMBlockConfig, mLST
 class Model(nn.Module):
     def __init__(self, configs):
         super(Model, self).__init__()
-        self.hidden_size = configs.hidden_size
-        self.num_layers = configs.num_layers
         self.pred_len = configs.pred_len
+        self.context_length = configs.seq_len
         self.input_size = configs.enc_in + configs.mark_enc_in
         self.embedding_dim = configs.embedding_dim
         self.output_size = configs.c_out
@@ -30,7 +29,7 @@ class Model(nn.Module):
                 ),
                 feedforward=FeedForwardConfig(proj_factor=1.3, act_fn="gelu"),
             ),
-            context_length=configs.context_length,
+            context_length=self.context_length,
             num_blocks=2,
             embedding_dim=self.embedding_dim,
             slstm_at=[1],  # Place sLSTM block at position 1
