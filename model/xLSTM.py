@@ -10,29 +10,36 @@ class Model(nn.Module):
         self.input_size = configs.enc_in + configs.mark_enc_in
         self.embedding_dim = configs.embedding_dim
         self.output_size = configs.c_out
-        self.dropout = nn.Dropout(configs.dropout)  # Dropout layer
+        self.kernal_size = configs.kernal_size
+        self.num_heads = configs.num_heads
+        self.qkv_proj_blocksize = configs.qkv_proj_blocksize
+        self.proj_factor = configs.proj_factor
+        self.num_blocks = configs.num_blocks
+        self.slstm_at = configs.slstm_at
 
+
+        self.dropout = nn.Dropout(configs.dropout)  # Dropout layer
         self.embedding = nn.Linear(self.input_size, self.embedding_dim)
 
         cfg = xLSTMBlockStackConfig(
             mlstm_block=mLSTMBlockConfig(
                 mlstm=mLSTMLayerConfig(
-                    conv1d_kernel_size=4, qkv_proj_blocksize=4, num_heads=4
+                    conv1d_kernel_size=self.kernal_size, qkv_proj_blocksize=self.qkv_proj_blocksize, num_heads=self.num_heads
                 )
             ),
             slstm_block=sLSTMBlockConfig(
                 slstm=sLSTMLayerConfig(
                     backend="cuda",
-                    num_heads=4,
-                    conv1d_kernel_size=4,
+                    num_heads=self.num_heads,
+                    conv1d_kernel_size=self.kernal_size,
                     bias_init="powerlaw_blockdependent",
                 ),
-                feedforward=FeedForwardConfig(proj_factor=1.3, act_fn="gelu"),
+                feedforward=FeedForwardConfig(proj_factor=self.proj_factor, act_fn="gelu"),
             ),
             context_length=self.context_length,
-            num_blocks=2,
+            num_blocks=self.num_blocks,
             embedding_dim=self.embedding_dim,
-            slstm_at=[1],  # Place sLSTM block at position 1
+            slstm_at=[self.slstm_at],  # Place sLSTM block at position 1
         )
 
         self.xlstm_stack = xLSTMBlockStack(cfg)
