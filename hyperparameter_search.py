@@ -42,7 +42,7 @@ def run_experiment(params, run_number):
         f"--train_epochs {params['train_epochs']} "
         f"--enc_in 321 "
         f"--c_out 321 "
-        f"--patience 10"
+        f"--patience 10 "
         f"--kernal_size {params['conv1d_kernel_size']} "
         f"--num_heads_xlstm {params['num_heads_xlstm']} "
         f"--qkv_proj_blocksize {params['qkv_proj_blocksize']} "
