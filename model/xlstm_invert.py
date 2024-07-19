@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from xlstm import xLSTMBlockStack, xLSTMBlockStackConfig, mLSTMBlockConfig, mLSTMLayerConfig, sLSTMBlockConfig, sLSTMLayerConfig, FeedForwardConfig
-from layers.Embed import DataEmbedding_inverted
+from layers.Embed import DataEmbedding_inverted  
 
 class Model(nn.Module):
     def __init__(self, configs):
@@ -45,6 +45,8 @@ class Model(nn.Module):
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
             x_enc /= stdev
 
+        print(x_enc.shape)
+        print(x_mark_enc.shape)
         # Embedding
         x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, D] -> [B, D, E]
 
