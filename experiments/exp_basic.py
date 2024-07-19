@@ -1,7 +1,7 @@
 import os
 import torch
 from model import Transformer, Informer, Reformer, Flowformer, Flashformer, \
-    iTransformer, iInformer, iReformer, iFlowformer, iFlashformer, LSTM, xLSTM, xlstm_time
+    iTransformer, iInformer, iReformer, iFlowformer, iFlashformer, LSTM, xLSTM, xlstm_time, xlstm_invert
 #, mamba, S_Mamba
 
 
@@ -22,6 +22,7 @@ class Exp_Basic(object):
             'LSTM': LSTM,
             'xLSTM': xLSTM,
             'xlstm_time': xlstm_time,
+            'xlstm_invert': xlstm_invert,
             #'Mamba': mamba,
             #'S_Mamba': S_Mamba
         }
