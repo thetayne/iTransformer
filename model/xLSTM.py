@@ -27,19 +27,10 @@ class Model(nn.Module):
                     conv1d_kernel_size=self.kernal_size, qkv_proj_blocksize=self.qkv_proj_blocksize, num_heads=self.num_heads
                 )
             ),
-            slstm_block=sLSTMBlockConfig(
-                slstm=sLSTMLayerConfig(
-                    backend="cuda",
-                    num_heads=self.num_heads,
-                    conv1d_kernel_size=self.kernal_size,
-                    bias_init="powerlaw_blockdependent",
-                ),
-                feedforward=FeedForwardConfig(proj_factor=self.proj_factor, act_fn="gelu"),
-            ),
             context_length=self.context_length,
             num_blocks=self.num_blocks,
             embedding_dim=self.embedding_dim,
-            slstm_at=[self.slstm_at],  # Place sLSTM block at position 1
+            #slstm_at=[self.slstm_at],  # Place sLSTM block at position 1
         )
 
         self.xlstm_stack = xLSTMBlockStack(cfg)

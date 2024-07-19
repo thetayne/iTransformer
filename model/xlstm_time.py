@@ -1,17 +1,11 @@
 import torch.nn.functional as F
 from torch import nn
 import torch
-import argparse
-import numpy as np
 from einops import rearrange
 
-import argparse
-
 from xlstm1.xlstm_block_stack import xLSTMBlockStack, xLSTMBlockStackConfig
-
 from xlstm1.blocks.mlstm.block import mLSTMBlockConfig
 from xlstm1.blocks.slstm.block import sLSTMBlockConfig
-
 
 mlstm_config = mLSTMBlockConfig()
 slstm_config = sLSTMBlockConfig()
@@ -31,10 +25,57 @@ config = xLSTMBlockStackConfig(
         context_length=336
     )
 
-    
 
 
+class Model(nn.Module):
+    def __init__(self, configs):
+        super(Model, self).__init__()
+        self.configs = configs
+        self.pred_len = configs.pred_len
+        self.context_length = configs.seq_len
+        self.input_size = configs.enc_in + configs.mark_enc_in
+        self.embedding_dim = configs.embedding_dim
+        self.output_size = configs.c_out
+        self.kernel_size = configs.kernal_size
 
+        self.dropout = nn.Dropout(configs.dropout)
+        self.batch_norm = nn.BatchNorm1d(self.input_size)
+
+        # Decomposition Kernel Size
+        kernel_size = configs.moving_avg
+        self.decompsition = series_decomp2(kernel_size)
+        self.Linear_Seasonal = nn.Linear(configs.seq_len, configs.pred_len)
+        self.Linear_Trend = nn.Linear(configs.seq_len, configs.pred_len)
+        self.Linear_Seasonal.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
+        self.Linear_Trend.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
+
+        self.mm = nn.Linear(configs.pred_len, configs.embedding_dim)
+        self.mm2 = nn.Linear(configs.embedding_dim, configs.pred_len)
+
+        self.xlstm_stack = xLSTMBlockStack(config )
+
+
+    def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
+        x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
+        x_combined = self.batch_norm(x_combined.permute(0, 2, 1)).permute(0, 2, 1)
+
+        seasonal_init, trend_init = self.decompsition(x_combined)
+        seasonal_init, trend_init = seasonal_init.permute(0, 2, 1), trend_init.permute(0, 2, 1)
+        seasonal_output = self.Linear_Seasonal(seasonal_init)
+        trend_output = self.Linear_Trend(trend_init)
+
+        x = seasonal_output + trend_output
+        x = self.mm(x)
+        x = self.xlstm_stack(x)
+        x = self.mm2(x)
+
+        x = self.dropout(x)
+        out = x.permute(0, 2, 1)
+        return out
+
+    def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
+        out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
+        return out
 
 
 class moving_avg(nn.Module):
@@ -54,7 +95,6 @@ class moving_avg(nn.Module):
         x = self.avg(x.permute(0, 2, 1))
         x = x.permute(0, 2, 1)
         return x
-    
 
 
 class series_decomp2(nn.Module):
@@ -69,62 +109,3 @@ class series_decomp2(nn.Module):
         moving_mean = self.moving_avg(x)
         res = x - moving_mean
         return res, moving_mean
-
-
-
-class xlstm(torch.nn.Module):
-    def __init__(self, configs, enc_in):
-        super(xlstm, self).__init__()
-        self.configs = configs
-        self.enc_in = enc_in
-        self.batch_norm = nn.BatchNorm1d(self.enc_in)
-
-
-        
-        # Decompsition Kernel Size
-        kernel_size = 25
-        self.decompsition = series_decomp2(kernel_size)
-        self.Linear_Seasonal = nn.Linear(configs.context_points,configs.target_points)
-        self.Linear_Trend = nn.Linear(configs.context_points,configs.target_points)
-        self.Linear_Decoder = nn.Linear(configs.context_points,configs.target_points)
-        self.Linear_Seasonal.weight = nn.Parameter((1/configs.context_points)*torch.ones([configs.target_points,configs.context_points]))
-        self.Linear_Trend.weight = nn.Parameter((1/configs.context_points)*torch.ones([configs.target_points,configs.context_points]))
-    
-        self.mm= nn.Linear(self.configs.target_points, self.configs.n2)
-
-
-        self.mm2= nn.Linear(config.embedding_dim, configs.target_points)
-        self.mm3= nn.Linear(configs.context_points,self.configs.n2)
-
-        self.xlstm_stack = xLSTMBlockStack(config )
-
-        
-
-
-    def forward(self, x):
-        #print(x.shape)
-
-        seasonal_init, trend_init = self.decompsition(x)
-        seasonal_init, trend_init = seasonal_init.permute(0,2,1), trend_init.permute(0,2,1)
-        seasonal_output = self.Linear_Seasonal(seasonal_init)
-        trend_output = self.Linear_Trend(trend_init)
-
-        x = seasonal_output + trend_output
-        #print(x.shape)
-
-
-        x=self.mm(x)
-        #print(x.shape)
-
-        
-        #x = self.batch_norm(x)
-    
-        x = self.xlstm_stack(x)
-        
-
-        x=self.mm2(x)
-
-        x=x.permute(0,2,1)
-
-    
-        return x
