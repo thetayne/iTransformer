@@ -29,7 +29,7 @@ class Model(nn.Module):
                     conv1d_kernel_size=self.kernel_size, qkv_proj_blocksize=self.qkv_proj_blocksize, num_heads=self.num_heads
                 )
             ),
-            context_length=self.context_length,
+            context_length= 325,
             num_blocks=self.num_blocks,
             embedding_dim=self.embedding_dim,
         )
@@ -55,18 +55,16 @@ class Model(nn.Module):
 
         
         # Embedding
-        x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, N] -> [B, L, E]
-        # After embedding: torch.Size([16, 325, 256])
-
-        print("after embedding")
-        print(x_enc.shape)
+        x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, N] -> [B, N, E]
+        
+        # After embedding: torch.Size([16, 325,   256]), i.e. [B, N, E]
 
         # Process with xLSTM stack
-        x_enc = self.xlstm_stack(x_enc) # [B, L, E]
+        x_enc = self.xlstm_stack(x_enc)# [B, N, E]
         x_enc = self.dropout(x_enc)
 
         # Linear projection
-        dec_out = self.linear(x_enc[:, -self.pred_len:, :])  # [B, L, E] -> [B, pred_len, output_size]
+        dec_out = self.linear(x_enc[:, -self.pred_len:, :])  # [B, N, E] -> [B, pred_len, output_size] : [B, S, N]
 
         if self.use_norm:
             # De-normalization
