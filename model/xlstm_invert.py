@@ -47,11 +47,19 @@ class Model(nn.Module):
 
         print(x_enc.shape)
         print(x_mark_enc.shape)
+        # B: batch_size;    E: d_model; 
+        # L: seq_len;       S: pred_len;
+        # N: number of variate (tokens), can also includes covariates
+        # x_enc has torch.Size([16, 96, 321]), i.e. [B, L, N]
+        # x_mark_enc has torch.Size([16, 96, 4]), i.e. [B, L, N]
+
+        
         # Embedding
-        x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, D] -> [B, D, E]
+        x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, N] -> [B, L, E]
+        # After embedding: torch.Size([16, 325, 256])
 
         # Process with xLSTM stack
-        x_enc = self.xlstm_stack(x_enc.permute(0, 2, 1))  # [B, D, E] -> [B, L, E]
+        x_enc = self.xlstm_stack(x_enc)
         x_enc = self.dropout(x_enc)
 
         # Linear projection
