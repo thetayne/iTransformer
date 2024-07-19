@@ -30,7 +30,6 @@ class Model(nn.Module):
             context_length=self.context_length,
             num_blocks=self.num_blocks,
             embedding_dim=self.embedding_dim,
-            bidirectional=True,  # Enabling bidirectional processing
         )
 
         self.xlstm_stack = xLSTMBlockStack(cfg)
