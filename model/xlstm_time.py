@@ -26,7 +26,6 @@ class Model(nn.Module):
         self.configs = configs
         self.pred_len = configs.pred_len
         self.context_length = configs.seq_len
-        self.input_size = configs.enc_in + configs.mark_enc_in
         self.embedding_dim = configs.embedding_dim
         self.output_size = configs.c_out
         self.kernel_size = configs.kernal_size
@@ -41,13 +40,14 @@ class Model(nn.Module):
         self.Linear_Seasonal.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
         self.Linear_Trend.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
 
-        self.mm = nn.Linear(configs.pred_len, configs.embedding_dim)
-        self.mm2 = nn.Linear(configs.embedding_dim, configs.pred_len)
+        self.mm = nn.Linear(configs.pred_len + configs.mark_enc_in, configs.embedding_dim)
+        self.mm2 = nn.Linear(configs.embedding_dim, configs.c_out)
 
         self.xlstm_stack = xLSTMBlockStack(config)
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
-        x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
+        #x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
+        x_combined = x_enc
 
         seasonal_init, trend_init = self.decomposition(x_combined)
         seasonal_init, trend_init = seasonal_init.permute(0, 2, 1), trend_init.permute(0, 2, 1)
@@ -55,14 +55,12 @@ class Model(nn.Module):
         trend_output = self.Linear_Trend(trend_init)
 
         x = seasonal_output + trend_output
+        #x = torch.cat((x, x_enc.permute(0, 2, 1)), dim=1)  # Add time encodings
         x = self.mm(x)
         x = self.xlstm_stack(x)
         x = self.mm2(x)
 
-        #x = self.dropout(x)
-        #x = self.batch_norm(x)
-
-
+        x = self.dropout(x)
         out = x.permute(0, 2, 1)
         return out
 
