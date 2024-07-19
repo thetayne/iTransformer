@@ -26,10 +26,10 @@ def run_experiment(params, run_number):
     # Construct the command with given hyperparameters
     model_id = f"ECL_96_96_{run_number}_emb_{params['embedding_dim']}"
     command = (
-        f"python -u run.py "
+        f"python -u iTransformer/run.py "
         f"--is_training 1 "
-        f"--root_path ../dataset/electricity/ "
-        f"--data_path electricity.csv "
+#       f"--root_path ../data "
+        f"--data_path /input-data/electricity.csv "
         f"--model_id {model_id} "
         f"--model xLSTM "
         f"--data custom "
