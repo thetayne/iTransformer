@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from xlstm import xLSTMBlockStack, xLSTMBlockStackConfig, mLSTMBlockConfig, mLSTMLayerConfig, sLSTMBlockConfig, sLSTMLayerConfig, FeedForwardConfig
+from layers.Embed import DataEmbedding_inverted
 
 class Model(nn.Module):
     def __init__(self, configs):
@@ -16,9 +17,10 @@ class Model(nn.Module):
         self.proj_factor = configs.proj_factor
         self.num_blocks = configs.num_blocks
         self.slstm_at = configs.slstm_at
+        self.use_norm = configs.use_norm
 
         self.dropout = nn.Dropout(configs.dropout)  # Dropout layer
-        self.embedding = nn.Linear(self.input_size, self.embedding_dim)
+        self.enc_embedding = DataEmbedding_inverted(self.input_size, self.embedding_dim, configs.dropout)
 
         # xLSTM configuration
         cfg = xLSTMBlockStackConfig(
@@ -36,19 +38,30 @@ class Model(nn.Module):
         self.linear = nn.Linear(self.embedding_dim, self.output_size)
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
-        # Concatenate encodings and invert dimensions
-        x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)  # [B, L, D]
-        x_combined = x_combined.permute(0, 2, 1)  # [B, D, L]
-        
-        x = self.embedding(x_combined)  # Embedding
-        x = x.permute(0, 2, 1)  # [B, L, E]
-        
-        x = self.xlstm_stack(x)  # xLSTM Stack
-        x = self.dropout(x) 
-        
-        out = self.linear(x[:, -self.pred_len:, :])  # Linear layer
-        return out
+        if self.use_norm:
+            # Normalization from Non-stationary Transformer
+            means = x_enc.mean(1, keepdim=True).detach()
+            x_enc = x_enc - means
+            stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
+            x_enc /= stdev
+
+        # Embedding
+        x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, D] -> [B, D, E]
+
+        # Process with xLSTM stack
+        x_enc = self.xlstm_stack(x_enc.permute(0, 2, 1))  # [B, D, E] -> [B, L, E]
+        x_enc = self.dropout(x_enc)
+
+        # Linear projection
+        dec_out = self.linear(x_enc[:, -self.pred_len:, :])  # [B, L, E] -> [B, pred_len, output_size]
+
+        if self.use_norm:
+            # De-normalization
+            dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
+            dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
+
+        return dec_out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
-        return out
+        return out[:, -self.pred_len:, :]  # [B, L, D]
