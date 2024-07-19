@@ -10,22 +10,15 @@ from xlstm1.blocks.slstm.block import sLSTMBlockConfig
 mlstm_config = mLSTMBlockConfig()
 slstm_config = sLSTMBlockConfig()
 
-
-
 config = xLSTMBlockStackConfig(
-        mlstm_block=mlstm_config,
-        slstm_block=slstm_config,
-        num_blocks=3,
-        embedding_dim=256,
-        add_post_blocks_norm=True,
-        
-        _block_map = 1,
-
-        #slstm_at="all",
-        context_length=336
-    )
-
-
+    mlstm_block=mlstm_config,
+    slstm_block=slstm_config,
+    num_blocks=3,
+    embedding_dim=256,
+    add_post_blocks_norm=True,
+    _block_map=1,
+    context_length=336
+)
 
 class Model(nn.Module):
     def __init__(self, configs):
@@ -39,11 +32,10 @@ class Model(nn.Module):
         self.kernel_size = configs.kernal_size
 
         self.dropout = nn.Dropout(configs.dropout)
-        self.batch_norm = nn.BatchNorm1d(self.input_size)
 
         # Decomposition Kernel Size
         kernel_size = configs.moving_avg
-        self.decompsition = series_decomp2(kernel_size)
+        self.decomposition = series_decomp2(kernel_size)
         self.Linear_Seasonal = nn.Linear(configs.seq_len, configs.pred_len)
         self.Linear_Trend = nn.Linear(configs.seq_len, configs.pred_len)
         self.Linear_Seasonal.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
@@ -52,14 +44,12 @@ class Model(nn.Module):
         self.mm = nn.Linear(configs.pred_len, configs.embedding_dim)
         self.mm2 = nn.Linear(configs.embedding_dim, configs.pred_len)
 
-        self.xlstm_stack = xLSTMBlockStack(config )
-
+        self.xlstm_stack = xLSTMBlockStack(config)
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
-        x_combined = self.batch_norm(x_combined.permute(0, 2, 1)).permute(0, 2, 1)
 
-        seasonal_init, trend_init = self.decompsition(x_combined)
+        seasonal_init, trend_init = self.decomposition(x_combined)
         seasonal_init, trend_init = seasonal_init.permute(0, 2, 1), trend_init.permute(0, 2, 1)
         seasonal_output = self.Linear_Seasonal(seasonal_init)
         trend_output = self.Linear_Trend(trend_init)
@@ -69,7 +59,10 @@ class Model(nn.Module):
         x = self.xlstm_stack(x)
         x = self.mm2(x)
 
-        x = self.dropout(x)
+        #x = self.dropout(x)
+        #x = self.batch_norm(x)
+
+
         out = x.permute(0, 2, 1)
         return out
 
