@@ -37,11 +37,17 @@ class Model(nn.Module):
         self.linear = nn.Linear(self.embedding_dim, self.output_size)
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
+
+        print(x_enc.shape)
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
+        print(x_combined.shape)
         x = self.embedding(x_combined)
+        print(x.shape)
         x = self.xlstm_stack(x)
+        print(x.shape)
         x = self.dropout(x) 
         out = self.linear(x[:, -self.pred_len:, :])
+        print(out.shape)
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):

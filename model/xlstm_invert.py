@@ -58,6 +58,9 @@ class Model(nn.Module):
         x_enc = self.enc_embedding(x_enc, x_mark_enc)  # [B, L, N] -> [B, L, E]
         # After embedding: torch.Size([16, 325, 256])
 
+        print("after embedding")
+        print(x_enc.shape)
+
         # Process with xLSTM stack
         x_enc = self.xlstm_stack(x_enc)
         x_enc = self.dropout(x_enc)
