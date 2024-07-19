@@ -20,7 +20,7 @@ class Model(nn.Module):
         self.use_norm = configs.use_norm
 
         self.dropout = nn.Dropout(configs.dropout)  # Dropout layer
-        self.enc_embedding = DataEmbedding_inverted(self.input_size, self.embedding_dim, configs.dropout)
+        self.enc_embedding = DataEmbedding_inverted(configs.seq_len, configs.d_model)
 
         # xLSTM configuration
         cfg = xLSTMBlockStackConfig(
