@@ -37,17 +37,21 @@ class Model(nn.Module):
         self.linear = nn.Linear(self.embedding_dim, self.output_size)
 
     def forecast(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
+                  # B: batch_size;    E: d_model; 
+        # L: seq_len;       S: pred_len;
+        # N: number of variate (tokens), can also includes covariates
 
-        print(x_enc.shape)
+        #print(x_enc.shape) [16, 96, 321] : [B, L, N]
         x_combined = torch.cat((x_enc, x_mark_enc), dim=-1)
-        print(x_combined.shape)
-        x = self.embedding(x_combined)
-        print(x.shape)
-        x = self.xlstm_stack(x)
-        print(x.shape)
+        #print(x_combined.shape) [16, 96, 325] : [B, L, N]
+        x = self.embedding(x_combined) # [B, L, N] -> [B, L, E]
+        #print(x.shape) [16, 96, 256] : [B, L, E]
+        x = self.xlstm_stack(x) # [B, L, E]
         x = self.dropout(x) 
+
+
         out = self.linear(x[:, -self.pred_len:, :])
-        print(out.shape)
+        #print(out.shape) [16, 96, 321] : [B, S, N]
         return out
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
