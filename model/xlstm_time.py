@@ -40,7 +40,7 @@ class Model(nn.Module):
         self.Linear_Seasonal.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
         self.Linear_Trend.weight = nn.Parameter((1 / configs.seq_len) * torch.ones([configs.pred_len, configs.seq_len]))
 
-        self.mm = nn.Linear(configs.pred_len + configs.mark_enc_in, configs.embedding_dim)
+        self.mm = nn.Linear(configs.pred_len, configs.embedding_dim)
         self.mm2 = nn.Linear(configs.embedding_dim, configs.c_out)
 
         self.xlstm_stack = xLSTMBlockStack(config)
