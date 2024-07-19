@@ -62,7 +62,7 @@ class Model(nn.Module):
         print(x_enc.shape)
 
         # Process with xLSTM stack
-        x_enc = self.xlstm_stack(x_enc)
+        x_enc = self.xlstm_stack(x_enc) # [B, L, E]
         x_enc = self.dropout(x_enc)
 
         # Linear projection
