@@ -45,8 +45,8 @@ class Model(nn.Module):
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
             x_enc /= stdev
 
-        print(x_enc.shape)
-        print(x_mark_enc.shape)
+        #print(x_enc.shape)
+        #print(x_mark_enc.shape)
         # B: batch_size;    E: d_model; 
         # L: seq_len;       S: pred_len;
         # N: number of variate (tokens), can also includes covariates

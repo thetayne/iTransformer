@@ -261,10 +261,15 @@ class Dataset_Custom(Dataset):
         elif self.timeenc == 1:
             data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
+            #print(data_stamp)
 
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
+        #print("Data shape")
+        #print(self.data_x.shape, self.data_y.shape, self.data_stamp.shape)
+        #print(self.data_stamp)
+
 
     def __getitem__(self, index):
         s_begin = index
@@ -276,6 +281,10 @@ class Dataset_Custom(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
+        #print("Data shape2")
+        #print(seq_x.shape, seq_y.shape, seq_x_mark.shape, seq_y_mark.shape)
+        #print(seq_x_mark)
+        #print(seq_y_mark)
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
