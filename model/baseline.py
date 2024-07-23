@@ -68,6 +68,10 @@ class BaselineModel:
             forecast = self.forecast_batch(batch_x, batch_y, batch_x_mark, batch_y_mark)
             forecast = self.inverse_transform(forecast)
             batch_y = self.inverse_transform(batch_y.numpy())
+            
+            # Only keep the last pred_len values of batch_y
+            batch_y = batch_y[:, -self.args.pred_len:, :]
+            
             all_forecasts.append(forecast)
             all_true.append(batch_y)
 
@@ -79,4 +83,5 @@ class BaselineModel:
         mae = np.abs(preds - trues).mean()
         rmse = np.sqrt(mse)
         print(f'MSE: {mse}, MAE: {mae}, RMSE: {rmse}')
+        
         return mse, mae, rmse

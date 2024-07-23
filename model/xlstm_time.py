@@ -10,15 +10,6 @@ from xlstm1.blocks.slstm.block import sLSTMBlockConfig
 mlstm_config = mLSTMBlockConfig()
 slstm_config = sLSTMBlockConfig()
 
-config = xLSTMBlockStackConfig(
-    mlstm_block=mlstm_config,
-    slstm_block=slstm_config,
-    num_blocks=3,
-    embedding_dim=256,
-    add_post_blocks_norm=True,
-    _block_map=1,
-    context_length=336
-)
 
 class Model(nn.Module):
     def __init__(self, configs):
@@ -29,6 +20,18 @@ class Model(nn.Module):
         self.embedding_dim = configs.embedding_dim
         self.output_size = configs.c_out
         self.kernel_size = configs.kernal_size
+        self.num_blocks = configs.num_blocks
+
+        config = xLSTMBlockStackConfig(
+            mlstm_block=mlstm_config,
+            slstm_block=slstm_config,
+            num_blocks=self.num_blocks,
+            embedding_dim=self.embedding_dim,
+            add_post_blocks_norm=True,
+            _block_map=1,
+            context_length=self.context_length,
+        )
+
 
         self.dropout = nn.Dropout(configs.dropout)
 
