@@ -41,39 +41,19 @@ class BaselineModel:
         decoded_hours = (encoded_hours + 0.5) * 23.0
         return decoded_hours.astype(int)
 
-
-    def forecast(self, test_loader):
-        all_forecasts = []
-        for batch_x, batch_y, batch_x_mark, batch_y_mark in test_loader:
-            batch_y = batch_y.numpy()
-            batch_size, _, num_features = batch_y.shape
-            forecast = np.zeros((batch_size, self.args.pred_len, num_features))
-            
-            # Print shapes for debugging
-            # print(f"batch_x shape: {batch_x.shape}")
-            # print(f"batch_y shape: {batch_y.shape}")
-            # print(f"batch_x_mark shape: {batch_x_mark.shape}")
-            # print(f"batch_y_mark shape: {batch_y_mark.shape}")
-            
-            encoded_test_hours = batch_y_mark[:, -self.args.pred_len:, 0].numpy()
-            
-            # Print encoded test hours for debugging
-            # print(f"encoded_test_hours shape: {encoded_test_hours.shape}")
-            # print(f"encoded_test_hours: {encoded_test_hours}")
-            
-            test_hours = self.decode_hours(encoded_test_hours)  # Decode the hours
-            
-            # Print decoded test hours for debugging
-            # print("Test hours")
-            # print(f"test_hours shape: {test_hours.shape}")
-            # print(f"test_hours: {test_hours}")
-            
-            for i in range(batch_size):
-                for j in range(self.args.pred_len):
-                    hour = test_hours[i, j]
-                    forecast[i, j, :] = self.hourly_averages[hour % 24]
-            all_forecasts.append(forecast)
-        return np.concatenate(all_forecasts, axis=0)
+    def forecast_batch(self, batch_x, batch_y, batch_x_mark, batch_y_mark):
+        batch_y = batch_y.numpy()
+        batch_size, _, num_features = batch_y.shape
+        forecast = np.zeros((batch_size, self.args.pred_len, num_features))
+        
+        encoded_test_hours = batch_y_mark[:, -self.args.pred_len:, 0].numpy()
+        test_hours = self.decode_hours(encoded_test_hours)  # Decode the hours
+        
+        for i in range(batch_size):
+            for j in range(self.args.pred_len):
+                hour = test_hours[i, j]
+                forecast[i, j, :] = self.hourly_averages[hour % 24]
+        return forecast
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
@@ -84,11 +64,10 @@ class BaselineModel:
         all_forecasts = []
         all_true = []
 
-        for batch_x, batch_y, _, _ in test_loader:
-            batch_y = batch_y.numpy()
-            forecast = self.forecast(test_loader)
+        for batch_x, batch_y, batch_x_mark, batch_y_mark in test_loader:
+            forecast = self.forecast_batch(batch_x, batch_y, batch_x_mark, batch_y_mark)
             forecast = self.inverse_transform(forecast)
-            batch_y = self.inverse_transform(batch_y)
+            batch_y = self.inverse_transform(batch_y.numpy())
             all_forecasts.append(forecast)
             all_true.append(batch_y)
 
