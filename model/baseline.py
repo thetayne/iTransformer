@@ -4,12 +4,12 @@ from sklearn.preprocessing import StandardScaler
 from data_provider.data_factory import data_provider
 import torch
 
-class BaselineModel:
+class Model():
     def __init__(self, args):
         self.args = args
         self.hourly_averages = None
         self.scaler = None
-        #self._get_data()
+        self._get_data()
 
     def _get_data(self):
         # Load and concatenate all training data batches
@@ -83,5 +83,5 @@ class BaselineModel:
         mae = np.abs(preds - trues).mean()
         rmse = np.sqrt(mse)
         print(f'MSE: {mse}, MAE: {mae}, RMSE: {rmse}')
-        
+
         return mse, mae, rmse

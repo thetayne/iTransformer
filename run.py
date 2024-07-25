@@ -117,12 +117,12 @@ if __name__ == '__main__':
     print(args)
 
     if args.model == 'baseline':
-        model = BaselineModel(args)
         print('Calculating hourly averages...')
-        model._get_data()  # This method call may be redundant as it's already called in __init__, consider removing it
+        model = BaselineModel(args)
+
         print('Evaluating baseline model...')
         model.evaluate()
-        
+
     else:
         if args.exp_name == 'partial_train':
             Exp = Exp_Long_Term_Forecast_Partial
